@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="EnthusiaPointCalculator.vcxproj" Id="19aa72cf-8265-4086-9117-529f6196d445" />
+</Solution>
