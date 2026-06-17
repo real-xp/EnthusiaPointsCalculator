@@ -108,7 +108,7 @@
       <AdditionalIncludeDirectories>D:\Code\VisualStudio\EnthusiaPointCalculator\Assets;D:\Code\VisualStudio\EnthusiaPointCalculator\ImGui;D:\Code\VisualStudio\EnthusiaPointCalculator\ProcAttach;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
