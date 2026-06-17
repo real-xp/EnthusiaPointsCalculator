@@ -11,7 +11,6 @@ This is meant to reduce mental math pressure in a casual run or even a speedrun.
 - Manual running
 - Auto running
 - Light And Dark Mode
-- Toggle to include RS Points or exclude them
 
 # Requirements
 - Windows (currently not supported on Linux or macOS)
@@ -28,9 +27,14 @@ This is meant to reduce mental math pressure in a casual run or even a speedrun.
 - To use autorun, go to `File > Auto Run` and check that.
 	- It should now make the `CHECK` button disappear, and it should autorun
 	- **PLEASE NOTE TO DISABLE AUTORUN AFTER YOU FINISH WITH THE RUN. ALSO CLOSE THE PROGRAM BEFORE CLOSING PCSX2**
+- The program shows you the rank you need to reach, the odds you need to reach that rank from your current grade, and the point difference from current to next grade.
+- If you are in R1 or RS, you see the Odds for both RS and R1 for Rank6 and Rank1.
+	- On the left is RS odds
+	- On the right is R1 odds
 
 # Limitations
 - R5 to R4 detection is unsupported. So the program does not know if you are in R5.
+- Rest screen decreasing points is not supported sadly.
 
 # Issues
 There are some known issues that may occur while using this program. Some of them are
