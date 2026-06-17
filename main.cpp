@@ -13,6 +13,7 @@
 #include "ProcAttach/variables.h"
 #include "ProcAttach/procattach.h"
 #include "Assets/font/rubik-font.h"
+#include "resource.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -50,15 +51,19 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to _tWi
 {
     ProcAttachSpace::ProcAttachClass ProcessAttach; // Main instance init of ProcAttach class
 
+    HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_ICON1)); // For the icon from resource.rc
+
     WNDCLASSEX wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L,
                       hInstance, nullptr, nullptr, nullptr, nullptr,
                       _T("ImGuiBase"), nullptr };
     ::RegisterClassEx(&wc);
 
     HWND hwnd = ::CreateWindow(wc.lpszClassName, _T("Enthusia Point Calculator"),
-        //WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, 20, 20, 300, 410, // x, y, size_x, size_y
-        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, 20, 20, 800, 800, // x, y, size_x, size_y
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, 20, 20, 290, 450, // x, y, size_x, size_y
+        //WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, 20, 20, 800, 800, // x, y, size_x, size_y
         nullptr, nullptr, wc.hInstance, nullptr);
+
+    SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 
     if (!CreateDeviceD3D(hwnd))
     {
@@ -66,6 +71,9 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to _tWi
         ::UnregisterClass(wc.lpszClassName, wc.hInstance);
         return 1;
     }
+
+    SendMessage(hwnd, WM_SETICON, ICON_BIG, (LPARAM)hIcon); // for icon big
+    SendMessage(hwnd, WM_SETICON, ICON_SMALL, (LPARAM)hIcon); // for icon small
 
     ::ShowWindow(hwnd, SW_SHOWDEFAULT);
     ::UpdateWindow(hwnd);
@@ -88,16 +96,16 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to _tWi
 
     bool attached = false;
 
-    if (ProcessAttach.ProcAttach() == 1) {
-        attached = true;
-    }
+    //if (ProcessAttach.ProcAttach() == 1) {
+    //    attached = true;
+    //}
 
     // main IMGUI window here
 
     bool done = false; // for imgui loop
     bool light_mode = false;
     bool auto_run = false;
-    ImVec4 color = ImVec4(0.1796875f, 0.4296875f, 0.75390625f, 1);
+    ImVec4 color = ImVec4(0.0196078431372549f, 0.607843137254902f, 0.9450980392156863f, 1);
 
     while (!done)
     {
@@ -121,17 +129,25 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to _tWi
 
         ImGui::Begin("Enthusia Point Calculator", NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_MenuBar);
         
-        if (auto_run) {
-            if (attached) {
+        if (auto_run)
+        {
+            attached = (ProcessAttach.ProcAttach() == 1);
+            if (attached)
+            {
                 static auto lastUpdate = std::chrono::steady_clock::now();
+                constexpr auto updateInterval = std::chrono::nanoseconds(16666666);
 
                 auto now = std::chrono::steady_clock::now();
 
-                if (now - lastUpdate >= std::chrono::milliseconds(16))
+                if (now - lastUpdate >= updateInterval)
                 {
                     ProcessAttach.UpdateRankingPointsAndCalculate();
                     lastUpdate = now;
                 }
+            }
+            else
+            {
+                attached = (ProcessAttach.ProcAttach() == 1);
             }
         }
 
@@ -147,15 +163,30 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to _tWi
                 if (ImGui::MenuItem("Exit", "Alt+F4")) exit(0);
                 ImGui::EndMenu();
             }
-            if (ImGui::MenuItem("Help")) ShellExecute(0, 0, L"https://github.com/real-xp", 0, 0, SW_SHOW);
+            if (ImGui::MenuItem("Help")) ShellExecute(0, 0, L"https://github.com/real-xp/EnthusiaPointsCalculator/blob/main/README.md", 0, 0, SW_SHOW);
             ImGui::EndMenuBar();
         }
 
         ImGui::Dummy(ImVec2(0, 10));
         ImGui::PushFont(NULL, 28);
-        ImGui::Text("RANK - %d", calcstruct.current_rank, ImGui::GetFontSize());
-        ImGui::Text("POINTS - %d", calcstruct.current_points);
-        ImGui::Text("GRADE - %s", CalculatorVars::GRADE[calcstruct.grade]);
+        if (ImGui::BeginTable("split", 2)) {
+            ImGui::TableNextColumn();
+            ImGui::Text("RANK");
+            ImGui::TableNextColumn();
+            ImGui::TextColored(color, "%d", calcstruct.current_rank);
+
+            ImGui::TableNextColumn();
+            ImGui::Text("POINTS");
+            ImGui::TableNextColumn();
+            ImGui::TextColored(color, "%d", calcstruct.current_points);
+
+            ImGui::TableNextColumn();
+            ImGui::Text("GRADE");
+            ImGui::TableNextColumn();
+            ImGui::TextColored(color, "%s", CalculatorVars::GRADE[calcstruct.grade]);
+            ImGui::EndTable();
+        }
+
         ImGui::PopFont();
         ImGui::Dummy(ImVec2(0, 10));
 
@@ -165,43 +196,74 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to _tWi
         
         ImGui::Dummy(ImVec2(0, 5));
 
-        if (calcstruct.current_rank == 1000)
-            ImGui::Text("Too empty here :(");
-        if (calcstruct.points_r1 != 0)
-        {
-            ImGui::Text("Rank1");
-            ImGui::SameLine();
-            ImGui::TextColored(color, "%.1f %d", calcstruct.odds_for_rank1, calcstruct.points_rank1);
-        }
-        if (calcstruct.points_rank6 != 0)
-        {
-            ImGui::Text("Top6");
-            ImGui::SameLine();
-        }
-            ImGui::TextColored(color, "%.1f %d", calcstruct.odds_for_rank6, calcstruct.points_rank6);
-        if (calcstruct.points_rs != 0)
-        {
-            ImGui::Text("RS");
-            ImGui::SameLine();
-            ImGui::TextColored(color, "%.1f %d", calcstruct.odds_for_rs, calcstruct.points_rs);
-        }
-        if (calcstruct.points_r1 != 0)
-        {
-            ImGui::Text("R1");
-            ImGui::SameLine();
-            ImGui::TextColored(color, "%.1f %d", calcstruct.odds_for_r1, calcstruct.points_r1);
-        }
-        if (calcstruct.points_r2 != 0)
-        {
-            ImGui::Text("R2");
-            ImGui::SameLine();
-            ImGui::TextColored(color, "%.1f %d", calcstruct.odds_for_r2, calcstruct.points_r2);
-        }
-        if (calcstruct.points_r3 != 0)
-        {
-            ImGui::Text("R3");
-            ImGui::SameLine();
-            ImGui::TextColored(color, "%.1f %d", calcstruct.odds_for_r3, calcstruct.points_r3);
+        if (ImGui::BeginTable("split", 3)) {
+            if (calcstruct.points_r1 != 0)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("GRADE");
+                ImGui::TableNextColumn();
+                ImGui::Text("ODDS");
+                ImGui::TableNextColumn();
+                ImGui::Text("POINTS");
+
+
+                ImGui::TableNextColumn();
+                ImGui::Text("Rank1");
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%.1f", calcstruct.odds_for_rank1);
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%d", calcstruct.points_rank1);
+            }
+            if (calcstruct.points_rank6 != 0)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("Top6");
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%.1f", calcstruct.odds_for_rank6);
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%d", calcstruct.points_rank6);
+            }
+            if (calcstruct.points_rs != 0)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("RS");
+                ImGui::SameLine();
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%.1f", calcstruct.odds_for_rs);
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%d", calcstruct.points_rs);
+            }
+            if (calcstruct.points_r1 != 0)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("R1");
+                ImGui::SameLine();
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%.1f", calcstruct.odds_for_r1);
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%d", calcstruct.points_r1);
+            }
+            if (calcstruct.points_r2 != 0)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("R2");
+                ImGui::SameLine();
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%.1f", calcstruct.odds_for_r2);
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%d", calcstruct.points_r2);
+            }
+            if (calcstruct.points_r3 != 0)
+            {
+                ImGui::TableNextColumn();
+                ImGui::Text("R3");
+                ImGui::SameLine();
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%.1f", calcstruct.odds_for_r3);
+                ImGui::TableNextColumn();
+                ImGui::TextColored(color, "%d", calcstruct.points_r3);
+            }
+            ImGui::EndTable();
         }
         ImGui::PopFont();
         ImGui::Dummy(ImVec2(0, 5));
@@ -212,8 +274,6 @@ int APIENTRY main(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to _tWi
                     ProcessAttach.UpdateRankingPointsAndCalculate();
             }
         }
-
-        ImGui::ShowDemoWindow();
 
         ImGui::End();   
         ImGui::Render();

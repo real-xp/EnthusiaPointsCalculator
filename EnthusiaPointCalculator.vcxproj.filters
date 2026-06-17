@@ -77,8 +77,34 @@
     <ClInclude Include="Assets\font\rubik-font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Assets\font\OFL.txt" />
+    <Text Include="LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\icon\logo.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\github_images\darkmode.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\github_images\ingame.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Assets\github_images\lightmode.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
   </ItemGroup>
 </Project>

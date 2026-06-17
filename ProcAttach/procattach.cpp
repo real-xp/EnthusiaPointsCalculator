@@ -36,33 +36,33 @@ DWORD ProcAttachSpace::ProcAttachClass::GetProcIDByName(const std::wstring procN
 }
 
 void ProcAttachSpace::ProcAttachClass::UpdateRankingPointsAndCalculate() {
-    uintptr_t INGAME_LAST_HIGHLIGHTED_OPTION = eeMemBase + CalculatorVars::LAST_HIGHLIGHTED_OPTION;
-    uintptr_t INGAME_IS_IN_RACING_MENU = eeMemBase + CalculatorVars::IS_IN_RACING_MENU;
+    //uintptr_t INGAME_LAST_HIGHLIGHTED_OPTION = eeMemBase + CalculatorVars::LAST_HIGHLIGHTED_OPTION;
+    //uintptr_t INGAME_IS_IN_RACING_MENU = eeMemBase + CalculatorVars::IS_IN_RACING_MENU;
     uintptr_t INGAME_CURRENT_SCREEN = eeMemBase + CalculatorVars::CURRENT_SCREEN;
     uintptr_t INGAME_EL_LIFE_RECORD = eeMemBase + CalculatorVars::EL_LIFE_RECORD;
 
-    uint8_t last_highlight_val;
-    uint8_t in_racing_game_menu;
+    //uint8_t last_highlight_val;
+    //uint8_t in_racing_game_menu;
     uint32_t ingame_current_screen;
 
     uint16_t current_ranking_points;
     uint16_t current_rank;
 
-    ReadProcessMemory(
-        hProc,
-        (LPCVOID)(INGAME_LAST_HIGHLIGHTED_OPTION),
-        &last_highlight_val,
-        sizeof(last_highlight_val),
-        nullptr
-    );
+    //ReadProcessMemory(
+    //    hProc,
+    //    (LPCVOID)(INGAME_LAST_HIGHLIGHTED_OPTION),
+    //    &last_highlight_val,
+    //    sizeof(last_highlight_val),
+    //    nullptr
+    //);
 
-    ReadProcessMemory(
-        hProc,
-        (LPCVOID)(INGAME_IS_IN_RACING_MENU),
-        &in_racing_game_menu,
-        sizeof(in_racing_game_menu),
-        nullptr
-    );
+    //ReadProcessMemory(
+    //    hProc,
+    //    (LPCVOID)(INGAME_IS_IN_RACING_MENU),
+    //    &in_racing_game_menu,
+    //    sizeof(in_racing_game_menu),
+    //    nullptr
+    //);
 
     ReadProcessMemory(
         hProc,
@@ -72,16 +72,16 @@ void ProcAttachSpace::ProcAttachClass::UpdateRankingPointsAndCalculate() {
         nullptr
     );
 
-    std::cout << "First part finish" << std::endl;
+    //std::cout << "First part finish" << std::endl;
 
-    std::cout << std::hex << last_highlight_val << std::endl;
-    std::cout << std::hex << in_racing_game_menu << std::endl;
-    std::cout << std::hex << ingame_current_screen << std::endl;
+    //std::cout << std::hex << last_highlight_val << std::endl;
+    //std::cout << std::hex << in_racing_game_menu << std::endl;
+    //std::cout << std::hex << ingame_current_screen << std::endl;
 
 
     if (ingame_current_screen == 0xce787) {
 
-        std::cout << "ENTERED IF ELSE STATEMENT" << std::endl;
+        //std::cout << "ENTERED IF ELSE STATEMENT" << std::endl;
 
         uint32_t life_record_ptr = 0;
 
@@ -93,9 +93,9 @@ void ProcAttachSpace::ProcAttachClass::UpdateRankingPointsAndCalculate() {
             nullptr
         );
 
-        std::cout << std::hex
-            << "LifeRecord: 0x"
-            << life_record_ptr << std::endl;
+        //std::cout << std::hex
+        //    << "LifeRecord: 0x"
+        //    << life_record_ptr << std::endl;
 
         uint32_t ranking_data_ptr = 0;
 
@@ -107,9 +107,9 @@ void ProcAttachSpace::ProcAttachClass::UpdateRankingPointsAndCalculate() {
             nullptr
         );
 
-        std::cout << std::hex
-            << "RankingData: 0x"
-            << ranking_data_ptr << std::endl;
+        //std::cout << std::hex
+        //    << "RankingData: 0x"
+        //    << ranking_data_ptr << std::endl;
 
         ReadProcessMemory(
             hProc,
@@ -119,10 +119,10 @@ void ProcAttachSpace::ProcAttachClass::UpdateRankingPointsAndCalculate() {
             nullptr
         );
 
-        std::cout << std::dec
-            << "Ranking Points: "
-            << current_ranking_points
-            << std::endl;
+        //std::cout << std::dec
+        //    << "Ranking Points: "
+        //    << current_ranking_points
+        //    << std::endl;
 
         ReadProcessMemory(
             hProc,
@@ -132,10 +132,10 @@ void ProcAttachSpace::ProcAttachClass::UpdateRankingPointsAndCalculate() {
             nullptr
         );
 
-        std::cout << std::dec
-            << "Ranking Points: "
-            << current_rank
-            << std::endl;
+        //std::cout << std::dec
+        //    << "Ranking Points: "
+        //    << current_rank
+        //    << std::endl;
 
         UpdateCalcStruct(current_ranking_points, current_rank);
     }

@@ -1016,13 +1016,13 @@ namespace CalculatorVars {
         "RS (R1 USE)",
     };
 
-    static const int LAST_HIGHLIGHTED_OPTION = 0x00377714; //  0x06 FOR EL
-    static const int IS_IN_RACING_MENU = 0x003b3d08; // 0x01 FOR YES
+    //static const int LAST_HIGHLIGHTED_OPTION = 0x00377714; //  0x06 FOR EL
+    //static const int IS_IN_RACING_MENU = 0x003b3d08; // 0x01 FOR YES
     static const int CURRENT_SCREEN = 0x004cb888; //0xce787 FOR RANKING POINT SCREEN
     static const int EL_LIFE_RECORD = 0x4A3F7C; // add 0x00000074 THEN 0x00000160 FOR RANKING POINTS
 };
 
-typedef struct CalcStruct {
+struct CalcStruct {
 
     int current_rank = 1000;
     int current_points = 0;
