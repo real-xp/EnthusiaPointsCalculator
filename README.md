@@ -11,6 +11,7 @@ This is meant to reduce mental math pressure in a casual run or even a speedrun.
 - Manual running
 - Auto running
 - Light And Dark Mode
+- A hidden color scheme (good luck finding it... unless you read the source code...)
 
 # Requirements
 - Windows (currently not supported on Linux or macOS)
@@ -31,6 +32,7 @@ This is meant to reduce mental math pressure in a casual run or even a speedrun.
 - If you are in R1 or RS, you see the Odds for both RS and R1 for Rank6 and Rank1.
 	- On the left is RS odds
 	- On the right is R1 odds
+- You can reset variables by going to `App > Reset Variables`
 
 # Limitations
 - R5 to R4 detection is unsupported. So the program does not know if you are in R5.

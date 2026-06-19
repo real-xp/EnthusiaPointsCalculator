@@ -143,6 +143,28 @@ void ProcAttachSpace::ProcAttachClass::UpdateCalcStruct(uint16_t current_ranking
     calcstruct.odds_for_r3 = 369 <= current_ranking_points ? 0.0f : (((float)(369) - current_ranking_points) / grade_poins);
 }
 
+void ProcAttachSpace::ProcAttachClass::ResetVariables() {
+    calcstruct.current_rank = 1000;
+    calcstruct.current_points = 0;
+    calcstruct.grade = 0;
+
+    calcstruct.odds_for_rank1_from_r1 = 0.0f;
+    calcstruct.odds_for_rank6_from_r1 = 0.0f;
+    calcstruct.odds_for_rank1_from_rs = 0.0f;
+    calcstruct.odds_for_rank6_from_rs = 0.0f;
+    calcstruct.odds_for_rs = 0.0f;
+    calcstruct.odds_for_r1 = 0.0f;
+    calcstruct.odds_for_r2 = 0.0f;
+    calcstruct.odds_for_r3 = 0.0f;
+
+    calcstruct.points_rank1 = 0;
+    calcstruct.points_rank6 = 0;
+    calcstruct.points_rs = 0;
+    calcstruct.points_r1 = 0;
+    calcstruct.points_r2 = 0;
+    calcstruct.points_r3 = 0;
+}
+
 // Main initializer
 int ProcAttachSpace::ProcAttachClass::ProcAttach() {
 

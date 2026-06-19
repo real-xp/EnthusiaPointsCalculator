@@ -694,6 +694,8 @@ Public License instead of this License.  But first, please read
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
+
+static const char* VERSION_NUMBER = "v1.0.1";
     
 static ID3D11Device* g_pd3dDevice = nullptr;
 static ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
@@ -715,6 +717,11 @@ static void ToggleImGuiTheme(bool* is_dark_mode) {
 // Changes theme from Dark to Light
 static void ToggleAutoRun(bool* auto_run) {
     *auto_run = !*auto_run;
+}
+
+static void ResetVariables(ProcAttachSpace::ProcAttachClass ProcessAttach) {
+    if (ProcessAttach.ProcAttach() == 1)
+        ProcessAttach.ResetVariables();
 }
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to _tWinMain for non console, main for console
@@ -769,6 +776,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to
     bool done = false; // for imgui loop
     bool light_mode = false;
     bool auto_run = false;
+    int v_clicked = 1;
+
     ImVec4 color = ImVec4(0.0196078431372549f, 0.607843137254902f, 0.9450980392156863f, 1);
 
     while (!done)
@@ -815,15 +824,21 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to
             }
         }
 
+        if (v_clicked > 6) {
+            color = ImVec4(0.0f, 0.8509803921568627f, 0.0f, 1);
+        }
+
         if (ImGui::BeginMenuBar())
         {
             if (ImGui::BeginMenu("App"))
             {
                 if (ImGui::MenuItem("Light Theme", NULL, light_mode)) ToggleImGuiTheme(&light_mode);
                 if (ImGui::MenuItem("Auto Run", NULL, auto_run)) ToggleAutoRun(&auto_run);
+                if (ImGui::MenuItem("Reset Variables")) { ResetVariables(ProcessAttach); auto_run = false; };
                 ImGui::Separator();
                 if (ImGui::MenuItem("Made By real-xp")) ShellExecute(0, 0, L"https://github.com/real-xp/", 0, 0, SW_SHOW);
                 if (ImGui::MenuItem("License (GPLv3)")) ShellExecute(0, 0, L"https://github.com/real-xp/EnthusiaPointsCalculator/blob/main/LICENSE.txt", 0, 0, SW_SHOW);
+                if (ImGui::MenuItem(VERSION_NUMBER)) { if (v_clicked < 7 && v_clicked > 0) v_clicked++; }
                 ImGui::Separator();
                 if (ImGui::MenuItem("Exit", "Alt+F4")) exit(0);
                 ImGui::EndMenu();
