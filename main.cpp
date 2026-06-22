@@ -18,7 +18,7 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 
-static const char* VERSION_NUMBER = "v1.0.2";
+static const char* VERSION_NUMBER = "v1.0.3";
     
 static ID3D11Device* g_pd3dDevice = nullptr;
 static ID3D11DeviceContext* g_pd3dDeviceContext = nullptr;
@@ -59,7 +59,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE, LPTSTR, int) // change to
     ::RegisterClassEx(&wc);
 
     HWND hwnd = ::CreateWindow(wc.lpszClassName, _T("Enthusia Point Calculator"),
-        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_THICKFRAME | WS_MAXIMIZEBOX, 20, 20, 310, 450, // x, y, size_x, size_y
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MAXIMIZEBOX, 20, 20, 310, 450, // x, y, size_x, size_y
         nullptr, nullptr, wc.hInstance, nullptr);
 
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
