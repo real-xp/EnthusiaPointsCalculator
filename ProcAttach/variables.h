@@ -26,6 +26,10 @@ struct CalcStruct {
     float odds_for_rank6_from_r1 = 0.0f;
     float odds_for_rank1_from_rs = 0.0f;
     float odds_for_rank6_from_rs = 0.0f;
+
+    float odds_for_rank1_general = 0.0f;
+    float odds_for_rank6_general = 0.0f;
+
     float odds_for_rs = 0.0f;
     float odds_for_r1 = 0.0f;
     float odds_for_r2 = 0.0f;

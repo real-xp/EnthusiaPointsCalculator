@@ -6,6 +6,7 @@
 #include "variables.h"
 #include "procattach.h"
 #include <string>
+#include <cstdarg>
 
 // PROCESS ATTACH FUNCTIONS
 const std::wstring PCSX2_PROC_NAME = L"pcsx2-qt.exe";
@@ -35,14 +36,46 @@ DWORD ProcAttachSpace::ProcAttachClass::GetProcIDByName(const std::wstring procN
     return prodID;
 }
 
+// Custom pointer chain getter
+uint32_t ProcAttachSpace::ProcAttachClass::PointerReaderChain(uintptr_t pointer, int layers, ...) {
+    va_list pointer_arg;
+    va_start(pointer_arg, layers);
+    uintptr_t current_pointer = pointer;
+    uint32_t intermediate_pointers = 0;
+    uint32_t final_pointer = 0;
+
+    for (size_t i = 0; i < layers; i++)
+    {
+        ReadProcessMemory(
+            hProc,
+            (LPCVOID)(current_pointer),
+            &intermediate_pointers,
+            sizeof(intermediate_pointers),
+            nullptr
+        );
+        current_pointer = eeMemBase + intermediate_pointers + va_arg(pointer_arg, int);
+    }
+
+    ReadProcessMemory(
+        hProc,
+        (LPCVOID)(current_pointer),
+        &final_pointer,
+        sizeof(final_pointer),
+        nullptr
+    );
+
+    va_end(pointer_arg);
+    return final_pointer;
+}
+
 void ProcAttachSpace::ProcAttachClass::UpdateRankingPointsAndCalculate() {
     uintptr_t INGAME_CURRENT_SCREEN = eeMemBase + CalculatorVars::CURRENT_SCREEN;
     uintptr_t INGAME_EL_LIFE_RECORD = eeMemBase + CalculatorVars::EL_LIFE_RECORD;
 
-    uint32_t ingame_current_screen;
+    uint32_t ingame_current_screen = 0;
 
-    uint16_t current_ranking_points;
-    uint16_t current_rank;
+    uint16_t current_ranking_points = 0;
+    uint16_t current_rank = 0;
 
     ReadProcessMemory(
         hProc,
@@ -54,29 +87,13 @@ void ProcAttachSpace::ProcAttachClass::UpdateRankingPointsAndCalculate() {
 
     if (ingame_current_screen == 0xce787) {
 
-        uint32_t life_record_ptr = 0;
+        uint32_t final_ptr = 0;
+
+        final_ptr = PointerReaderChain(INGAME_EL_LIFE_RECORD, 1, 0x74);
 
         ReadProcessMemory(
             hProc,
-            (LPCVOID)(INGAME_EL_LIFE_RECORD),
-            &life_record_ptr,
-            sizeof(life_record_ptr),
-            nullptr
-        );
-
-        uint32_t ranking_data_ptr = 0;
-
-        ReadProcessMemory(
-            hProc,
-            (LPCVOID)(eeMemBase + life_record_ptr + 0x74),
-            &ranking_data_ptr,
-            sizeof(ranking_data_ptr),
-            nullptr
-        );
-
-        ReadProcessMemory(
-            hProc,
-            (LPCVOID)(eeMemBase + ranking_data_ptr + 0x160),
+            (LPCVOID)(eeMemBase + final_ptr + 0x160),
             &current_ranking_points,
             sizeof(current_ranking_points),
             nullptr
@@ -84,7 +101,7 @@ void ProcAttachSpace::ProcAttachClass::UpdateRankingPointsAndCalculate() {
 
         ReadProcessMemory(
             hProc,
-            (LPCVOID)(eeMemBase + ranking_data_ptr + 0x015c),
+            (LPCVOID)(eeMemBase + final_ptr + 0x015c),
             &current_rank,
             sizeof(current_rank),
             nullptr
@@ -100,29 +117,29 @@ void ProcAttachSpace::ProcAttachClass::UpdateCalcStruct(uint16_t current_ranking
     calcstruct.current_points = current_ranking_points;
     calcstruct.current_rank = current_rank;
 
-    int grade_poins = 500;
+    int grade_points = 500;
 
     if (current_rank <= 50) {
         calcstruct.grade = 5;
     }
     else if (current_rank <= 300 && current_rank > 50) {
-        grade_poins = 200;
+        grade_points = 200;
         calcstruct.grade = 4;
     }
     else if (current_rank <= 500 && current_rank > 300) {
-        grade_poins = 100;
+        grade_points = 100;
         calcstruct.grade = 3;
     }
     else if (current_rank <= 800 && current_rank > 500) {
-        grade_poins = 50;
+        grade_points = 50;
         calcstruct.grade = 2;
     }
     else if (current_rank == 1000) {
-        grade_poins = 10;
+        grade_points = 10;
         calcstruct.grade = 0;
     }
     else {
-        grade_poins = 20;
+        grade_points = 20;
         calcstruct.grade = 1;
     }
 
@@ -137,10 +154,12 @@ void ProcAttachSpace::ProcAttachClass::UpdateCalcStruct(uint16_t current_ranking
     calcstruct.odds_for_rank6_from_r1 = 8700 <= current_ranking_points ? 0.0f : ((float)(8700 - current_ranking_points) / 200);
     calcstruct.odds_for_rank1_from_rs = 10800 <= current_ranking_points ? 0.0f : ((float)(10800 - current_ranking_points) / 500);
     calcstruct.odds_for_rank6_from_rs = 8700 <= current_ranking_points ? 0.0f : ((float)(8700 - current_ranking_points) / 500);
-    calcstruct.odds_for_rs = 4300 <= current_ranking_points ? 0.0f : ((float)(4300 - current_ranking_points) / grade_poins);
-    calcstruct.odds_for_r1 = 2300 <= current_ranking_points ? 0.0f : ((float)(2300 - current_ranking_points) / grade_poins);
-    calcstruct.odds_for_r2 = 1150 <= current_ranking_points ? 0.0f : ((float)(1150 - current_ranking_points) / grade_poins);
-    calcstruct.odds_for_r3 = 369 <= current_ranking_points ? 0.0f : (((float)(369) - current_ranking_points) / grade_poins);
+    calcstruct.odds_for_rank1_general = 10800 <= current_ranking_points ? 0.0f : ((float)(10800 - current_ranking_points) / grade_points);
+    calcstruct.odds_for_rank6_general = 8700 <= current_ranking_points ? 0.0f : ((float)(8700 - current_ranking_points) / grade_points);
+    calcstruct.odds_for_rs = 4300 <= current_ranking_points ? 0.0f : ((float)(4300 - current_ranking_points) / grade_points);
+    calcstruct.odds_for_r1 = 2300 <= current_ranking_points ? 0.0f : ((float)(2300 - current_ranking_points) / grade_points);
+    calcstruct.odds_for_r2 = 1150 <= current_ranking_points ? 0.0f : ((float)(1150 - current_ranking_points) / grade_points);
+    calcstruct.odds_for_r3 = 369 <= current_ranking_points ? 0.0f : (((float)(369) - current_ranking_points) / grade_points);
 }
 
 void ProcAttachSpace::ProcAttachClass::ResetVariables() {
@@ -152,6 +171,10 @@ void ProcAttachSpace::ProcAttachClass::ResetVariables() {
     calcstruct.odds_for_rank6_from_r1 = 0.0f;
     calcstruct.odds_for_rank1_from_rs = 0.0f;
     calcstruct.odds_for_rank6_from_rs = 0.0f;
+
+    calcstruct.odds_for_rank1_general = 0.0f;
+    calcstruct.odds_for_rank6_general = 0.0f;
+
     calcstruct.odds_for_rs = 0.0f;
     calcstruct.odds_for_r1 = 0.0f;
     calcstruct.odds_for_r2 = 0.0f;
